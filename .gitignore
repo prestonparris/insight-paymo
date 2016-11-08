@@ -1,0 +1,6 @@
+dependency-reduced-pom.xml
+*.iml
+*.idea
+/target
+/paymo_input
+/paymo_output
