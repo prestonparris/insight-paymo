@@ -53,8 +53,8 @@ function setup_testing_input_output {
 
   rm -r ${TEST_OUTPUT_PATH}/paymo_input/*
   rm -r ${TEST_OUTPUT_PATH}/paymo_output/*
-  cp -r ${GRADER_ROOT}/tests/${test_folder}/paymo_input/batch_payment.csv ${TEST_OUTPUT_PATH}/paymo_input/batch_payment.csv
-  cp -r ${GRADER_ROOT}/tests/${test_folder}/paymo_input/stream_payment.csv ${TEST_OUTPUT_PATH}/paymo_input/stream_payment.csv
+  cp -r ${GRADER_ROOT}/tests/${test_folder}/paymo_input/batch_payment.csv ${TEST_OUTPUT_PATH}/paymo_input/batch_payment.txt
+  cp -r ${GRADER_ROOT}/tests/${test_folder}/paymo_input/stream_payment.csv ${TEST_OUTPUT_PATH}/paymo_input/stream_payment.txt
 }
 
 function compare_outputs {

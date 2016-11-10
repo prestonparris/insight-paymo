@@ -1,6 +1,5 @@
 dependency-reduced-pom.xml
+/insight_testsuite/temp
 *.iml
 *.idea
 /target
-/paymo_input
-/paymo_output
