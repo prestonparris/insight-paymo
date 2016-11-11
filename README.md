@@ -21,7 +21,6 @@ Adds the transaction after getting the results of each feature to the in memory 
 - `mvn package`
 
 ## Run
-- (copy batch_payment.csv and stream_payment.csv file into paymo_input directory)
 - `./run.sh`
 
 ## Run Tests
