@@ -1,5 +1,9 @@
 package com.prestonparris.paymo.models;
 
+/**
+ * The enum used to represent
+ * the validity of each payment
+ */
 public enum TrustedStatus {
     trusted,
     untrusted

@@ -1,3 +1,4 @@
+com/prestonparris/paymo/features/FeatureBuilder.class
 com/prestonparris/paymo/models/Payment.class
 com/prestonparris/paymo/csv/PaymentReader.class
 com/prestonparris/paymo/models/TrustedStatus.class

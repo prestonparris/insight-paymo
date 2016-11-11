@@ -1,6 +1,9 @@
-
 package com.prestonparris.paymo.models;
 
+/**
+ * A Class representing a payment
+ *
+ */
 public class Payment {
     private String time;
     private int id1;

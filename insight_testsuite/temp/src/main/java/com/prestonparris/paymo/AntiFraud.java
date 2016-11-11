@@ -1,24 +1,13 @@
 package com.prestonparris.paymo;
 
-import com.opencsv.CSVReader;
 import com.prestonparris.paymo.csv.PaymentReader;
-import com.prestonparris.paymo.csv.PaymentWriter;
+import com.prestonparris.paymo.features.FeatureBuilder;
 import com.prestonparris.paymo.models.Payment;
-import com.prestonparris.paymo.models.TrustedStatus;
-import com.prestonparris.paymo.utils.CsvUtil;
-import org.apache.commons.lang3.StringUtils;
-import org.jgrapht.alg.BidirectionalDijkstraShortestPath;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -30,7 +19,7 @@ public class AntiFraud {
 
     public static void main(String[] args) {
         Instant startTime = Instant.now();
-        LOGGER.info("Starting PayMo AntiFraud Detection {}", startTime);
+        LOGGER.info("Starting PayMo AntiFraud Detection");
 
         // Validate the input
         if (args.length < 5) {
@@ -52,60 +41,45 @@ public class AntiFraud {
         // Initialize the graph
         PaymentGraph paymentGraph = new PaymentGraph();
 
-        Consumer<Payment> userMakingPaymentCreator = (payment) -> paymentGraph.createUser(payment.getId1());
-        Consumer<Payment> userReceivingPaymentCreator = (payment) -> paymentGraph.createUser(payment.getId2());
-
-        Consumer<Payment> paymentRecorder = (payment) ->
-                paymentGraph.recordPayment(payment.getId1(), payment.getId2());
-
         // Setup the initial graph state from the batch input file
-        List<Consumer<Payment>> batchPaymentConsumers =
-                Arrays.asList(userMakingPaymentCreator, userReceivingPaymentCreator, paymentRecorder);
+        FeatureBuilder batchFeatureBuilder = new FeatureBuilder(paymentGraph)
+                .addUserMakingPayment()
+                .addUserReceivingPayment()
+                .addPaymentRecorder();
+
+        List<Consumer<Payment>> batchFeatures = batchFeatureBuilder.build();
 
         PaymentReader batchPaymentReader = new PaymentReader(batchCsvPath)
-                .read(batchPaymentConsumers);
+                .read(batchFeatures);
+
+        batchFeatureBuilder.closePaymentWriters();
+
+        Instant batchEndTime = Instant.now();
+
+        LOGGER.info("Finished loading batch input file. This took: {} to complete.",
+                Duration.between(startTime, batchEndTime));
 
         // Start reading the stream of inputs and applying features
-        PaymentWriter featureOnePaymentWriter = new PaymentWriter(featureOneOutputPath);
+        FeatureBuilder streamFeatureBuilder = new FeatureBuilder(paymentGraph)
+                .addUserMakingPayment()
+                .addUserReceivingPayment()
+                .addIsWithinDegreeFeature(featureOneOutputPath, 1)
+                .addIsWithinDegreeFeature(featureTwoOutputPath, 2)
+                .addIsWithinDegreeFeature(featureThreeOutputPath, 4)
+                .addPaymentRecorder();
 
-        Consumer<Payment> featureOne = (payment) -> {
-            boolean hasMadeAPaymentToThisUserBefore =
-                    paymentGraph.hasPathWithinDegree(payment.getId1(), payment.getId2(), 1);
-
-            featureOnePaymentWriter.writeTrustedStatus(hasMadeAPaymentToThisUserBefore);
-        };
-
-        PaymentWriter featureTwoPaymentWriter = new PaymentWriter(featureTwoOutputPath);
-
-        Consumer<Payment> featureTwo = (payment) -> {
-            boolean isFriendOfAFriend =
-                    paymentGraph.hasPathWithinDegree(payment.getId1(), payment.getId2(), 2);
-
-            featureTwoPaymentWriter.writeTrustedStatus(isFriendOfAFriend);
-        };
-
-        PaymentWriter featureThreePaymentWriter = new PaymentWriter(featureThreeOutputPath);
-
-        Consumer<Payment> featureThree = (payment) -> {
-            boolean isWithinFourthDegreeFriendsNetwork =
-                    paymentGraph.hasPathWithinDegree(payment.getId1(), payment.getId2(), 4);
-
-            featureThreePaymentWriter.writeTrustedStatus(isWithinFourthDegreeFriendsNetwork);
-        };
-
-        List<Consumer<Payment>> streamPaymentConsumers = Arrays.asList(userMakingPaymentCreator,
-            userReceivingPaymentCreator, featureOne, featureTwo, featureThree, paymentRecorder);
+        List<Consumer<Payment>> streamFeatures = streamFeatureBuilder.build();
 
         PaymentReader streamPaymentReader = new PaymentReader(streamCsvPath)
-                .read(streamPaymentConsumers);
+                .read(streamFeatures);
 
-        featureOnePaymentWriter.close();
-        featureTwoPaymentWriter.close();
-        featureThreePaymentWriter.close();
+        streamFeatureBuilder.closePaymentWriters();
 
         Instant endTime = Instant.now();
 
-        LOGGER.info("Shutting down AntiFraud Detection took:{} to complete.", Duration.between(startTime, endTime));
+        LOGGER.info("Shutting down AntiFraud Detection. This took: {} to complete.",
+                Duration.between(startTime, endTime));
+
         System.exit(0);
     }
 }

@@ -44,6 +44,8 @@ public class PaymentGraph {
             return false;
         }
 
+        LOGGER.info("Recording payment between  {} ->  {}", userMakingPayment, userReceivingPayment);
+
         final DefaultEdge edge = new DefaultEdge();
         return graph.addEdge(userMakingPayment, userReceivingPayment, edge);
     }

@@ -5,4 +5,5 @@
 /Users/prestonparris/Desktop/insight/digital-wallet/paymo/src/main/java/com/prestonparris/paymo/utils/CsvUtil.java
 /Users/prestonparris/Desktop/insight/digital-wallet/paymo/src/main/java/com/prestonparris/paymo/models/Payment.java
 /Users/prestonparris/Desktop/insight/digital-wallet/paymo/src/main/java/com/prestonparris/paymo/csv/PaymentWriter.java
+/Users/prestonparris/Desktop/insight/digital-wallet/paymo/src/main/java/com/prestonparris/paymo/features/FeatureBuilder.java
 /Users/prestonparris/Desktop/insight/digital-wallet/paymo/src/main/java/com/prestonparris/paymo/csv/PaymentReader.java

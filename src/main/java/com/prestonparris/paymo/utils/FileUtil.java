@@ -1,15 +1,17 @@
 package com.prestonparris.paymo.utils;
 
-import com.opencsv.CSVReader;
-import com.prestonparris.paymo.models.Payment;
-import com.prestonparris.paymo.models.TrustedStatus;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.function.Consumer;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
+/**
+ * A Utility helper class for reading and writing to files
+ *
+ */
 public class FileUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
 
